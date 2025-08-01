@@ -5,8 +5,11 @@ from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_tool_calling_agent, AgentExecutor
+import os
+from tools import search_tool
 
 load_dotenv()
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 class Response(BaseModel):
     topic: str
@@ -14,7 +17,7 @@ class Response(BaseModel):
     sources: list[str]
     tools_used: list[str]
 
-llm = ChatOpenAI(model="gpt-4o")
+llm = ChatOpenAI(model="gpt-4o", openai_api_key=openai_api_key)
 
 parser = PydanticOutputParser(pydantic_object=Response)
 
@@ -34,16 +37,18 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 ).partial(format_instructions=parser.get_format_instructions())
 
+tools = [search_tool]
+
 agent = create_tool_calling_agent(
     llm=llm,
     prompt=prompt,
-    tools=[]
+    tools=tools
 )
 
-agent_executor = AgentExecutor(agent=agent, tools=[], verbose=True)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
-raw_response = agent_executor.invoke({"query": "What is the impact of climate change on polar bear populations?"})
-print(raw_response)
+query = input("What can I help you with? ")
+raw_response = agent_executor.invoke({"query": query})
 
 try:
     structured_response = parser.parse(raw_response.get("output")[0]["text"])

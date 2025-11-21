@@ -26,8 +26,9 @@ This project has been extended to work with:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+git clone https://github.com/CarlosBravoGarran/AI_Agent.git  #HTTPS
+git clone git@github.com:CarlosBravoGarran/AI_Agent.git      #SSH
+cd AI_Agent
 ```
 
 ### 2. Create and activate a virtual environment
